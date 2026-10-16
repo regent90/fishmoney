@@ -2,3 +2,5 @@
 *.env
 ledger.jsonl
 __pycache__/
+
+.taste-skill/

@@ -3,419 +3,520 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>代儲貨源研究:16688 對接與實測</title>
-<meta name="description" content="Google AI Pro 18 個月啟動連結的貨源研究:實測進貨成本約 NT$25,16688 開放 API 已打通,尚未實際下單。">
-<meta name="color-scheme" content="light dark">
+<title>代儲貨源研究：16688 對接與實測</title>
+<meta name="description" content="Google AI Pro 18 個月啟動連結的貨源研究：實測進貨成本約 NT$25，16688 開放 API 已打通，尚未實際下單。">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0a0a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&amp;family=Noto+Sans+TC:wght@400;500;700;900&amp;display=swap">
 <style>
 :root {
-  --bg: #f3f4f1;
-  --ink: #0f1f1b;
-  --muted: #465751;
-  --step: #e4e8e2;
-  --field: #0b3b34;
-  --field-ink: #f3f4f1;
-  --field-muted: #b5cbc4;
-  --accent: #0a7c6e;
-  --accent-on-field: #7fe3d1;
-  --on-accent: #ffffff;
-  --signal: #c8412f;
-  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Heiti TC", system-ui, sans-serif;
-  --gutter: clamp(20px, 4vw, 48px);
-  --measure: 38rem;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0d1512;
-    --ink: #e8eeea;
-    --muted: #a5b4ad;
-    --step: #16211d;
-    --field: #0f3d36;
-    --field-ink: #eaf2ee;
-    --field-muted: #a9c4bc;
-    --accent: #5dd6c3;
-    --accent-on-field: #8be9d8;
-    --on-accent: #05201b;
-    --signal: #ff8a73;
-  }
+  --bg: #0a0a0a;
+  --surface: #151515;
+  --ink: #efefef;
+  --muted: #9b9b9b;
+  --accent: #b11226;
+  --accent-ink: #ffffff;
+  --accent-text: #ff6b78;
+  --paper: #efefef;
+  --paper-ink: #0a0a0a;
+  --paper-muted: #4a4a4a;
+  --gutter: clamp(20px, 3.2vw, 48px);
+  --col-gap: clamp(12px, 1.6vw, 24px);
+  --bar: 64px;
+  --font: "Archivo", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+  --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  --step-head: clamp(2.6rem, 1.2rem + 5vw, 5.5rem);
+  --step-display: clamp(3.1rem, 11.2vw, 10rem);
 }
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: var(--bar); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font);
-  font-size: 1.0625rem;
-  line-height: 1.8;
-  font-feature-settings: "tnum";
+  font-size: var(--step-body);
+  line-height: 1.75;
+  font-weight: 400;
+  text-wrap: pretty;
 }
-a { color: inherit; text-decoration-thickness: 2px; text-underline-offset: 0.22em; text-decoration-color: var(--accent); }
+img, video { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-decoration-thickness: 2px; text-underline-offset: 0.25em; text-decoration-color: var(--accent-text); }
 a:hover { text-decoration-color: currentColor; }
-a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
-::selection { background: var(--accent); color: var(--on-accent); }
-code { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 0.92em; background: var(--step); padding: 0.1em 0.4em; border-radius: 4px; }
-p { margin: 0 0 1.1em; }
+a:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 3px; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+p { margin: 0 0 1em; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
 ul, ol { margin: 0; padding: 0; }
+code { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 1em; padding: 0.12em 0.45em; background: var(--surface); color: var(--ink); }
 
-.wrap { padding-inline: var(--gutter); }
-section { padding-block: clamp(72px, 12vw, 176px); }
-.field { background: var(--field); color: var(--field-ink); }
-.field a { text-decoration-color: var(--accent-on-field); }
-.field .muted { color: var(--field-muted); }
+/* display type: Archivo at its narrowest and heaviest; CJK falls through to Noto Sans TC */
+.d { font-weight: 800; font-stretch: 62%; font-variation-settings: "wdth" 62; letter-spacing: -0.01em; line-height: 1; font-feature-settings: "tnum"; }
+.num { font-feature-settings: "tnum", "lnum"; font-variant-numeric: tabular-nums lining-nums; }
+
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--col-gap); padding-inline: var(--gutter); }
+section { padding-block: clamp(88px, 11vw, 160px); }
 .muted { color: var(--muted); }
 
-h1, h2, h3 { margin: 0; font-weight: 900; }
-h1 {
-  font-size: clamp(2rem, 8.4vw, 7rem);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
-}
-h1 span { display: block; }
-h2 {
-  font-size: clamp(2.25rem, 6.2vw, 5rem);
-  line-height: 1.08;
-  letter-spacing: -0.025em;
-  margin-bottom: clamp(32px, 5vw, 64px);
-}
-h3 { font-size: 1.375rem; line-height: 1.4; letter-spacing: -0.01em; font-weight: 700; margin-bottom: 0.5em; }
+/* ---------------- bar: takes the ink of the chapter beneath it ---------------- */
+.bar { position: fixed; inset: 0 0 auto 0; z-index: 50; height: var(--bar); display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-inline: var(--gutter); background: var(--bg); color: var(--ink); transition: background-color .3s ease, color .3s ease; }
+.bar.on-paper { background: var(--paper); color: var(--paper-ink); }
+.bar .mark { font-weight: 700; font-size: var(--step-body); text-decoration: none; letter-spacing: -0.01em; }
+.bar nav { display: none; gap: clamp(16px, 2.2vw, 32px); font-size: var(--step-small); margin-left: auto; margin-right: 24px; }
+.bar nav a { text-decoration: none; padding-block: 8px; text-underline-offset: 0.35em; }
+.bar nav a:hover { text-decoration: underline; text-decoration-color: currentColor; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 24px; background: var(--accent); color: var(--accent-ink); font-weight: 500; font-size: var(--step-small); text-decoration: none; border-radius: 0; }
+.btn:hover { background: #d0172e; }
+.btn:active { background: #8f0f1f; }
+.bar .btn { min-height: 40px; }
+.menu { margin-left: auto; position: relative; }
+.menu summary { list-style: none; cursor: pointer; font-size: var(--step-small); padding: 8px 4px; }
+.menu summary::-webkit-details-marker { display: none; }
+.menu[open] > div { position: absolute; right: 0; top: calc(100% + 12px); display: grid; min-width: 11rem; background: var(--surface); color: var(--ink); padding: 8px; }
+.menu a { padding: 10px 14px; text-decoration: none; }
+.menu a:hover { background: #222; }
+@media (min-width: 900px) { .bar nav { display: flex; } .menu { display: none; } }
+@media (max-width: 899px) { .bar .mark { margin-right: auto; } .menu { margin-left: 0; } }
 
-.statement { font-size: clamp(1.375rem, 2.6vw, 2.25rem); line-height: 1.5; font-weight: 500; max-width: 30em; margin-bottom: 0.6em; }
-.prose { max-width: var(--measure); }
-
-/* top bar */
-.bar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 22px; }
-.bar b { font-weight: 900; font-size: 1.125rem; letter-spacing: -0.01em; }
-.bar nav { display: flex; gap: clamp(14px, 2.4vw, 32px); overflow-x: auto; scrollbar-width: none; font-size: 0.9375rem; }
-.bar nav::-webkit-scrollbar { display: none; }
-.bar nav a { white-space: nowrap; text-decoration: none; opacity: 0.85; padding-block: 6px; }
-.bar nav a:hover { opacity: 1; text-decoration: underline; text-decoration-color: var(--accent-on-field); text-decoration-thickness: 2px; text-underline-offset: 0.3em; }
-
-/* hero */
-.hero { padding-block: 0 clamp(64px, 11vw, 160px); }
-.hero-title { margin-top: clamp(24px, 6vw, 88px); }
-.hero .lead { margin-top: clamp(40px, 6vw, 88px); display: grid; gap: clamp(24px, 4vw, 64px); grid-template-columns: 1fr; align-items: end; }
-.byline { margin: 0; }
-.hero .big { font-size: clamp(4rem, 15vw, 11rem); font-weight: 900; line-height: 0.95; letter-spacing: -0.04em; color: var(--accent-on-field); font-feature-settings: "tnum"; }
-.hero .big small { display: block; font-size: clamp(1rem, 1.6vw, 1.25rem); font-weight: 500; letter-spacing: 0; line-height: 1.6; color: var(--field-muted); margin-top: 0.6rem; }
-@media (min-width: 900px) { .hero .lead { grid-template-columns: 1fr auto; } .hero .big { text-align: left; } }
-
-/* findings */
-.findings { display: grid; gap: clamp(28px, 4vw, 56px); margin-top: clamp(40px, 6vw, 80px); max-width: 64rem; }
-.findings dt { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 900; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 0.35em; }
-.findings dd { margin: 0; max-width: var(--measure); }
-.findings .warn dt { color: var(--signal); }
-@media (min-width: 900px) {
-  .findings > div { display: grid; grid-template-columns: 14rem 1fr; gap: 40px; align-items: baseline; }
-  .findings dt { margin: 0; }
+/* ---------------- hero: two fields, the sentence cut by the seam ---------------- */
+.hero { position: relative; height: 130svh; min-height: 760px; padding: 0; overflow: hidden; --seam: 50svh; }
+.hero .f-paper { position: absolute; inset: 0 0 auto 0; height: var(--seam); background: var(--paper); }
+.hero .f-red { position: absolute; inset: var(--seam) 0 0 0; background: var(--accent); }
+.hero h1 { position: absolute; left: var(--gutter); top: calc(var(--seam) - 1.34em); margin: 0; font-size: var(--step-display); line-height: 1; white-space: nowrap; color: var(--accent); }
+.hero h1 .l { display: block; height: 1em; position: relative; }
+/* line two changes ink where it crosses the seam: same text drawn again in the lower ink, clipped to below the seam */
+.hero h1 .l2::after { content: attr(data-t); position: absolute; left: 0; top: 0; color: var(--paper); clip-path: inset(34% 0 0 0); }
+.slot { display: inline-block; width: 1.72em; height: 0.86em; vertical-align: -0.1em; margin-left: 0.28em; border-radius: 0.14em; overflow: hidden; background: #2a1c14; position: relative; }
+.slot video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 47% 50%; transform: scale(2.4); transform-origin: 47% 50%; }
+.hero .support { position: absolute; left: 50%; transform: translateX(-50%); top: calc(100svh - 150px); width: min(34ch, calc(100% - 2 * var(--gutter))); margin: 0; text-align: center; color: var(--paper); font-size: var(--step-body); line-height: 1.6; font-weight: 500; }
+@media (max-width: 700px) {
+  .hero { --seam: 46svh; --step-display: clamp(2.6rem, 13.4vw, 4.4rem); }
+  .slot { width: 1.5em; }
+  .hero .support { top: calc(100svh - 128px); }
 }
 
-/* flow */
-.flow { display: grid; gap: 0; max-width: 62rem; }
-.step { display: grid; gap: 14px; grid-template-columns: 1fr; align-items: center; }
-.step .box { background: var(--step); padding: 22px 24px; border-radius: 10px; }
-.step .box p { margin: 0; color: var(--muted); font-size: 0.9375rem; line-height: 1.65; }
-.step .box h3 { margin-bottom: 0.2em; font-size: 1.1875rem; }
-.step.ours .box { background: var(--accent); color: var(--on-accent); }
-.step.ours .box p { color: inherit; opacity: 0.92; }
-.tag { display: flex; align-items: center; gap: 10px; font-size: 0.9375rem; font-weight: 500; }
-.tag i { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--muted); }
-.tag.ok i { background: var(--accent); }
-.tag.bad i { background: var(--signal); }
-.tag.todo i { background: var(--ink); }
-.edge { display: flex; align-items: center; gap: 12px; padding: 10px 0 10px 24px; color: var(--muted); font-size: 0.9375rem; }
-.edge::before { content: ""; flex: none; width: 2px; height: 28px; background: var(--muted); opacity: 0.6; }
-.edge.maybe::before { width: 0; background: none; border-left: 2px dashed var(--muted); opacity: 0.8; }
-@media (min-width: 760px) { .step { grid-template-columns: minmax(0, 1fr) 15rem; gap: 32px; } }
+/* ---------------- section grammar: statement left, proof right ---------------- */
+.head-d { font-size: var(--step-head); margin-bottom: clamp(28px, 3.6vw, 56px); }
+.statement { font-size: var(--step-lead); line-height: 1.55; font-weight: 500; margin: 0 0 0.9em; max-width: 26em; }
+.lede { max-width: 34rem; color: var(--ink); }
+.col-l { grid-column: 1 / span 6; }
+.col-r { grid-column: 8 / span 5; }
+.col-r.c7 { grid-column: 7 / -1; }
+.col-r.c8 { grid-column: 8 / -1; }
+@media (max-width: 899px) { .col-l, .col-r, .col-r.c7, .col-r.c8 { grid-column: 1 / -1; } .col-r { margin-top: clamp(40px, 8vw, 72px); } }
 
-/* numbers */
-.numbers { display: grid; gap: clamp(12px, 1.6vw, 20px); grid-template-columns: repeat(2, 1fr); margin-bottom: clamp(40px, 6vw, 80px); }
-.num { background: rgba(255,255,255,0.07); padding: clamp(20px, 2.6vw, 36px); border-radius: 10px; }
-.num b { display: block; font-size: clamp(2rem, 5vw, 4.25rem); font-weight: 900; line-height: 1; letter-spacing: -0.03em; color: var(--accent-on-field); }
-.num span { display: block; margin-top: 0.6rem; font-size: 0.9375rem; line-height: 1.55; color: var(--field-muted); }
-.num.lead-num { grid-column: 1 / -1; background: var(--accent-on-field); color: #06201b; }
-.num.lead-num b { font-size: clamp(3.5rem, 12vw, 9rem); color: inherit; }
-.num.lead-num span { color: #0b3b34; font-size: 1.0625rem; }
-@media (min-width: 900px) {
-  .numbers { grid-template-columns: 2fr 1fr 1fr; }
-  .num.lead-num { grid-column: auto; grid-row: span 2; display: flex; flex-direction: column; justify-content: flex-end; }
+/* conclusion */
+.finding { display: grid; gap: 6px; margin: clamp(28px, 3vw, 40px) 0 0; max-width: 34rem; }
+.finding dt { font-size: var(--step-lead); font-weight: 700; line-height: 1.3; }
+.finding dd { margin: 0 0 8px; }
+.finding .warn dt { color: var(--accent-text); }
+.photo { width: 100%; height: auto; object-fit: cover; background: var(--surface); }
+.photo-tall { aspect-ratio: 3 / 4; object-position: 50% 52%; }
+.photo-45 { aspect-ratio: 4 / 5; }
+
+/* ledger: figures align on the decimal point */
+.ledger { display: grid; gap: clamp(14px, 1.8vw, 24px); }
+.row { display: grid; grid-template-columns: 1.15em 1.1em minmax(0, 1fr); align-items: center; font-size: var(--step-head); }
+.row .i { text-align: right; line-height: 1; }
+.row .f { text-align: left; line-height: 1; }
+.row .cap { font-family: var(--font); font-stretch: 100%; font-variation-settings: "wdth" 100; font-weight: 400; font-size: 1.1875rem; line-height: 1.45; padding-left: 20px; letter-spacing: 0; color: var(--muted); }
+.row .cap b { color: var(--ink); font-weight: 500; }
+.row.hot .i, .row.hot .f { color: var(--accent-text); }
+.row.zero .i, .row.zero .f { color: var(--muted); }
+@media (max-width: 899px) { .row { grid-template-columns: 1.1em 1.05em minmax(0, 1fr); } .row .cap { padding-left: 14px; } }
+.notes { display: grid; gap: 0.8em; max-width: 34rem; padding-left: 1.1em; margin-top: clamp(32px, 4vw, 56px); }
+.notes li::marker { color: var(--accent-text); }
+.src { margin-top: 2em; font-size: var(--step-small); color: var(--muted); max-width: 40rem; }
+
+/* calculator */
+.calc { padding-inline: var(--gutter); }
+.panel { background: var(--surface); padding: clamp(24px, 3.6vw, 56px); display: grid; gap: clamp(28px, 4vw, 56px); }
+.ctl { display: grid; gap: 10px; }
+.ctl label { font-size: var(--step-lead); font-weight: 500; }
+.ctl .big { font-size: var(--step-head); line-height: 1; color: var(--ink); }
+.ctl input[type=range] { width: 100%; height: 44px; accent-color: var(--accent); cursor: pointer; margin: 0; }
+.results { display: grid; gap: 4px; }
+.res { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; padding-block: 10px; }
+.res > span:first-child { color: var(--muted); font-size: 1.1875rem; }
+.res .v { font-size: var(--step-lead); font-weight: 700; }
+.res.main .v { font-size: var(--step-head); color: var(--accent-text); font-stretch: 62%; font-variation-settings: "wdth" 62; font-weight: 800; line-height: 1; }
+.res.main { padding-top: 24px; }
+.res .v { white-space: nowrap; }
+@media (max-width: 899px) { .res.main { flex-direction: column; align-items: flex-start; gap: 6px; } }
+@media (min-width: 900px) { .panel { grid-template-columns: 1fr 1fr; } }
+
+/* how: lines that step across */
+.steps { padding-inline: var(--gutter); display: grid; gap: clamp(40px, 5.5vw, 72px); }
+.stage { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--col-gap); }
+.stage > div { grid-column: var(--s) / -1; }
+.stage h2 { font-size: var(--step-head); line-height: 1.12; font-weight: 800; letter-spacing: -0.02em; }
+.stage p { margin: 14px 0 0; max-width: 38ch; color: var(--muted); font-size: var(--step-body); }
+.stage.last h2 { color: var(--accent-text); }
+.stage.last p { color: var(--ink); }
+@media (max-width: 899px) { .stage > div { grid-column: 1 / -1; margin-left: calc(var(--ind) * 4vw); } .stage p { max-width: none; } }
+
+/* list */
+.list-head { grid-column: 1 / -1; padding-left: 3vw; margin-bottom: clamp(56px, 8vw, 96px); }
+.list-head h2 { font-size: var(--step-head); font-weight: 800; line-height: 1.08; letter-spacing: -0.02em; }
+.list-left { grid-column: 1 / span 4; align-self: end; }
+.list-right { grid-column: 7 / -1; }
+.tbl { width: 100%; border-collapse: collapse; font-size: var(--step-body); }
+.tbl caption { text-align: left; color: var(--muted); font-size: var(--step-small); padding-bottom: 16px; }
+.tbl th { text-align: left; font-weight: 500; color: var(--muted); font-size: var(--step-small); padding: 0 0 12px 0; }
+.tbl td { padding: 13px 0; vertical-align: top; line-height: 1.5; }
+.tbl tbody tr:nth-child(4n+1) td { padding-top: 30px; }
+.tbl tbody tr:first-child td { padding-top: 13px; }
+.tbl .r { text-align: right; padding-left: 18px; white-space: nowrap; }
+.tbl .sub { display: block; color: var(--muted); font-size: var(--step-small); margin-top: 2px; }
+.tbl tbody tr { transition: background-color .2s; }
+.tbl tbody tr:hover td { color: var(--accent-text); }
+.tbl-wrap { overflow-x: auto; }
+@media (max-width: 899px) { .list-head { padding-left: 0; } .list-left { grid-column: 1 / -1; order: 3; width: 60%; margin-left: auto; margin-top: 40px; } .list-right { grid-column: 1 / -1; } }
+
+/* tech table */
+.tech-table { width: 100%; border-collapse: collapse; }
+.tech-table th { text-align: left; font-weight: 500; font-size: var(--step-small); color: var(--muted); padding: 0 16px 12px 0; }
+.tech-table td { padding: 12px 16px 12px 0; vertical-align: top; line-height: 1.5; }
+.tech-table td:last-child, .tech-table th:last-child { padding-right: 0; text-align: right; white-space: nowrap; }
+.tech-table td code { white-space: nowrap; }
+.spend { color: var(--accent-text); font-weight: 700; }
+.tech-wrap { overflow-x: auto; margin-bottom: clamp(28px, 4vw, 48px); }
+@media (max-width: 700px) {
+  .tech-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .tech-table, .tech-table tbody, .tech-table tr, .tech-table td { display: block; width: 100%; }
+  .tech-table tr { padding: 14px 0 18px; }
+  .tech-table td { padding: 2px 0; text-align: left !important; white-space: normal !important; }
+  .tech-table td:last-child::before { content: "花錢嗎："; color: var(--muted); }
 }
-@media (prefers-color-scheme: dark) { .num.lead-num { background: var(--accent-on-field); } }
 
-/* tables */
-.table-wrap { overflow-x: auto; margin: 0 calc(var(--gutter) * -1); padding-inline: var(--gutter); -webkit-overflow-scrolling: touch; }
-table { border-collapse: collapse; width: 100%; min-width: 40rem; font-size: 0.96875rem; line-height: 1.55; }
-th, td { text-align: left; padding: 14px 18px; vertical-align: top; }
-th { font-weight: 700; background: var(--ink); color: var(--bg); white-space: nowrap; }
-th:first-child { border-radius: 8px 0 0 8px; }
-th:last-child { border-radius: 0 8px 8px 0; }
-tbody tr:nth-child(odd) td { background: var(--step); }
-tbody tr td:first-child { border-radius: 8px 0 0 8px; }
-tbody tr td:last-child { border-radius: 0 8px 8px 0; }
-td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
-.field table th { background: var(--field-ink); color: var(--field); }
-.field tbody tr:nth-child(odd) td { background: rgba(255,255,255,0.08); }
-.price-strong { font-weight: 900; }
-.soldout { color: var(--signal); font-weight: 700; }
-.field .soldout { color: #ffb3a4; }
+/* next */
+.ol { display: grid; gap: 1.1em; padding-left: 1.5em; max-width: 36rem; }
+.ol li::marker { color: var(--accent-text); font-weight: 700; }
 
-.sources { margin-top: 2.2rem; font-size: 0.9375rem; color: var(--muted); }
-.field .sources { color: var(--field-muted); }
-.list { display: grid; gap: 0.9em; max-width: var(--measure); padding-left: 1.2em; }
-.list li::marker { color: var(--accent); font-weight: 900; }
-.field .list li::marker { color: var(--accent-on-field); }
-ol.list { padding-left: 1.6em; }
-.decide { display: flex; gap: 14px; align-items: flex-start; max-width: var(--measure); padding: 22px 24px; background: rgba(255,255,255,0.1); border-radius: 10px; }
-.decide input { margin-top: 0.55em; width: 20px; height: 20px; flex: none; accent-color: var(--accent-on-field); }
-.stack > * + * { margin-top: clamp(40px, 6vw, 72px); }
+/* inverted close */
+.close { background: var(--paper); color: var(--paper-ink); min-height: 92svh; padding-block: clamp(88px, 12vw, 160px) clamp(32px, 4vw, 48px); display: flex; flex-direction: column; justify-content: space-between; }
+.close .big { font-size: var(--step-display); line-height: 1; color: var(--paper-ink); padding-inline: var(--gutter); }
+.close .big em { font-style: normal; color: var(--accent); }
+.close .base { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--col-gap); align-items: end; padding-inline: var(--gutter); margin-top: clamp(64px, 10vw, 140px); }
+.close .base p { grid-column: 1 / span 6; margin: 0; font-size: var(--step-body); line-height: 1.6; max-width: 36rem; }
+.close .base .btn { grid-column: 10 / -1; min-height: 56px; justify-self: end; width: 100%; }
+@media (max-width: 899px) { .close .base p, .close .base .btn { grid-column: 1 / -1; } .close .base .btn { margin-top: 28px; } .close { min-height: 80svh; } }
 
-/* footer */
-footer { padding-block: clamp(64px, 10vw, 140px) 40px; }
-footer .name { font-size: clamp(3rem, 16vw, 13rem); font-weight: 900; letter-spacing: -0.05em; line-height: 0.95; color: var(--accent-on-field); }
-footer p { margin-top: 2rem; color: var(--field-muted); font-size: 0.9375rem; }
+footer { background: var(--paper); color: var(--paper-ink); position: relative; overflow: hidden; padding: clamp(24px, 4vw, 48px) 0 0; }
+footer a { text-decoration-color: var(--accent); }
+.foot-links { display: flex; flex-wrap: wrap; gap: 8px 28px; padding-inline: var(--gutter); font-size: var(--step-body); }
+.credits { padding-inline: var(--gutter); margin: clamp(40px, 5vw, 72px) 0 0; font-size: var(--step-small); line-height: 1.7; color: var(--paper-muted); max-width: 72ch; }
+.wordmark { font-size: clamp(7rem, 29vw, 30rem); line-height: 0.8; white-space: nowrap; padding-inline: var(--gutter); transform: translateY(26%); margin-top: clamp(8px, 2vw, 24px); color: var(--paper-ink); user-select: none; }
 
-/* motion: content stays visible if script or motion is unavailable */
+/* motion: content stays visible when script or motion is unavailable */
 @media (prefers-reduced-motion: no-preference) {
-  .js [data-r] { opacity: 0; transform: translateY(24px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); transition-delay: calc(var(--i, 0) * 70ms); }
+  .js [data-r] { opacity: 0; transform: translateY(26px); transition: opacity .75s cubic-bezier(.2,.7,.2,1), transform .75s cubic-bezier(.2,.7,.2,1); transition-delay: calc(var(--i, 0) * 80ms); }
   .js [data-r].in { opacity: 1; transform: none; }
-  .step .box, .num, .decide { transition: transform .25s ease; }
-  .step .box:hover, .num:hover { transform: translateY(-3px); }
-  .bar nav a { transition: opacity .2s; }
+  .btn { transition: background-color .2s, transform .2s; }
+  .btn:hover { transform: translateY(-2px); }
+  .photo { transition: transform .6s cubic-bezier(.2,.7,.2,1); }
+  .photo-wrap:hover .photo { transform: scale(1.03); }
 }
+.photo-wrap { overflow: hidden; }
 </style>
 </head>
-<body>
+<body id="top">
 
-<header class="field hero">
-  <div class="wrap">
-    <div class="bar">
-      <b>fishmoney</b>
-      <nav aria-label="章節">
-        <a href="#conclusion">結論</a>
-        <a href="#how">運作方式</a>
-        <a href="#numbers">貨源實測</a>
-        <a href="#scorecard">評分表</a>
-        <a href="#tech">技術對接</a>
-        <a href="#next">下一步</a>
-      </nav>
+<header class="bar on-paper" id="bar">
+  <a class="mark" href="#top">代儲貨源研究</a>
+  <nav aria-label="章節">
+    <a href="#conclusion">結論</a>
+    <a href="#numbers">實測</a>
+    <a href="#calc">試算</a>
+    <a href="#how">運作</a>
+    <a href="#scorecard">賣家</a>
+    <a href="#tech">對接</a>
+    <a href="#next">下一步</a>
+  </nav>
+  <details class="menu">
+    <summary>目錄</summary>
+    <div>
+      <a href="#conclusion">結論</a>
+      <a href="#numbers">實測</a>
+      <a href="#calc">試算</a>
+      <a href="#how">運作</a>
+      <a href="#scorecard">賣家</a>
+      <a href="#tech">對接</a>
+      <a href="#next">下一步</a>
     </div>
-    <h1 class="hero-title"><span>代儲貨源研究</span><span>16688 對接與實測</span></h1>
-    <div class="lead">
-      <p class="byline muted">2026 年 10 月 16 日 · Regent Wang</p>
-      <p class="big">¥5.55<small>實測進貨成本,約 NT$25。台灣蝦皮同類商品約 NT$1200。</small></p>
-    </div>
-  </div>
+  </details>
+  <a class="btn" href="https://github.com/regent90/fishmoney">原始碼</a>
 </header>
 
 <main>
 
-<section id="conclusion">
-  <div class="wrap">
-    <h2 data-r>結論</h2>
-    <p class="statement" data-r>貨源可行,技術對接已打通,但還沒用真錢下過單。</p>
-    <p class="prose muted" data-r style="--i:1">16688 平台上的 Google AI Pro(Gemini)18 個月啟動連結,實測進貨成本約 ¥5.55(約 NT$25);台灣蝦皮同類商品約 NT$1200。</p>
-    <dl class="findings">
-      <div data-r style="--i:1">
-        <dt>已確認</dt>
-        <dd>16688 開放 API 可以詢價、下單、查單、投訴;我們寫的客戶端已用真憑證通過簽章驗證,詢價成功。</dd>
-      </div>
-      <div class="warn" data-r style="--i:2">
-        <dt>最大不確定</dt>
-        <dd>所有賣家都沒說連結來源;連結 1 小時內不用就過期、無售後;福利之後會不會被 Google 或 Jio 收回,沒有官方條款可查。</dd>
-      </div>
-      <div data-r style="--i:3">
-        <dt>還缺的</dt>
-        <dd>運營錢包是 0,尚未實際購買一份走完「下單、啟動、追蹤」流程。</dd>
-      </div>
-    </dl>
+<section class="hero" data-chapter="hero" aria-label="首屏">
+  <div class="f-paper"></div>
+  <div class="f-red"></div>
+  <h1 class="d"><span class="l">進貨 NT$25<span class="slot" aria-hidden="true"><video id="loop" autoplay muted loop playsinline preload="metadata" poster="assets/hourglass-loop-poster.jpg" width="854" height="480"><source src="assets/hourglass-loop.webm" type="video/webm"></video></span></span><span class="l l2" data-t="蝦皮賣 NT$1200">蝦皮賣 NT$1200</span></h1>
+  <p class="support">代儲貨源研究：16688 上的 Google AI Pro 啟動連結，拿到手只有 1 小時有效。</p>
+</section>
+
+<section id="conclusion" data-chapter="dark">
+  <div class="grid">
+    <div class="col-l">
+      <h2 class="head-d d" data-r>結論</h2>
+      <p class="statement" data-r style="--i:1">貨源可行，技術對接已打通，但還沒用真錢下過單。</p>
+      <p class="lede muted" data-r style="--i:2">16688 平台上的 Google AI Pro（Gemini）18 個月啟動連結，實測進貨成本約 ¥5.55（約 NT$25）；台灣蝦皮同類商品約 NT$1200。</p>
+      <dl class="finding">
+        <div data-r style="--i:2"><dt>已確認</dt><dd>16688 開放 API 可以詢價、下單、查單、投訴；我們寫的客戶端已用真憑證通過簽章驗證，詢價成功。</dd></div>
+        <div class="warn" data-r style="--i:3"><dt>最大不確定</dt><dd>所有賣家都沒說連結來源；連結 1 小時內不用就過期、無售後；福利之後會不會被 Google 或 Jio 收回，沒有官方條款可查。</dd></div>
+        <div data-r style="--i:4"><dt>還缺的</dt><dd>運營錢包是 0，尚未實際購買一份走完「下單、啟動、追蹤」流程。</dd></div>
+      </dl>
+    </div>
+    <div class="col-r photo-wrap" data-r style="--i:2">
+      <img class="photo photo-tall" src="assets/hourglass-wood.jpg" width="1134" height="2454" alt="一個木框玻璃沙漏，上半部的沙正往下漏" loading="lazy">
+    </div>
   </div>
 </section>
 
-<section id="how" style="background: var(--step);">
-  <div class="wrap">
-    <h2 data-r>運作方式</h2>
-    <p class="statement" data-r>已查清的是 16688 這一段(貨源商、API);上游來源不明,我們自己的店面和收款還沒做。</p>
-    <div class="flow" role="group" aria-label="貨源到客人的流程,共 5 個環節" style="margin-top: clamp(32px, 5vw, 56px);">
-      <div class="step" data-r>
-        <div class="box" style="background: var(--bg);">
-          <h3>上游:連結的來源</h3>
-          <p>不明;推測是 Google 與 Jio 的 18 個月促銷方案</p>
-        </div>
-        <div class="tag bad"><i></i>來源不明</div>
-      </div>
-      <div class="edge maybe" aria-hidden="true">來源沒有公開說明</div>
-      <div class="step" data-r>
-        <div class="box" style="background: var(--bg);">
-          <h3>16688 貨源商(賣家)</h3>
-          <p>標價約 ¥3.25–6;連結 1 小時內要用,無售後</p>
-        </div>
-        <div class="tag"><i></i>已調查,沒有質保</div>
-      </div>
-      <div class="edge">我們的運營錢包付款</div>
-      <div class="step" data-r>
-        <div class="box" style="background: var(--bg);">
-          <h3>16688 開放 API</h3>
-          <p>詢價、下單、查單、投訴</p>
-        </div>
-        <div class="tag ok"><i></i>客戶端已完成,簽章通過</div>
-      </div>
-      <div class="edge">回傳連結(卡密)</div>
-      <div class="step ours" data-r>
-        <div class="box">
-          <h3>我們的轉接層與店面</h3>
-          <p>客人付款後才向 16688 下單,再交付連結</p>
-        </div>
-        <div class="tag todo"><i></i>還沒做</div>
-      </div>
-      <div class="edge">付款後交付連結</div>
-      <div class="step" data-r>
-        <div class="box" style="background: var(--bg);">
-          <h3>客人(台灣、歐美)</h3>
-          <p>啟動時可能要切換網路地區,收款方式待決定</p>
-        </div>
-        <div class="tag bad"><i></i>收款待決定</div>
+<section id="numbers" data-chapter="dark" style="padding-top: 0;">
+  <div class="grid">
+    <div class="col-l">
+      <h2 class="head-d d" data-r>貨源實測</h2>
+      <p class="statement" data-r style="--i:1">實際進貨成本 = 代理價 + 2.8% 采購手續費。</p>
+      <p class="lede muted" data-r style="--i:2">以下是 2026-10-16 用 API 詢價（唯讀，沒下單）的結果，匯率以 ¥1 ≈ NT$4.5 估算。</p>
+      <div class="photo-wrap" style="max-width: 24rem; margin-top: clamp(32px, 5vw, 64px); --i:3;" data-r>
+        <img class="photo photo-45" src="assets/ntd-stack.jpg" width="1920" height="1440" alt="臺灣銀行封裝的一整疊新臺幣鈔票" loading="lazy" style="object-position: 52% 45%;">
       </div>
     </div>
-    <p class="prose" style="margin-top: clamp(32px, 5vw, 56px);" data-r>粗框的綠色那一格是我們要自己做的部分:客人付款後才即時向 16688 下單,因為連結 1 小時內不用就過期,不能囤貨。</p>
-  </div>
-</section>
-
-<section id="numbers" class="field">
-  <div class="wrap">
-    <h2 data-r>貨源實測</h2>
-    <p class="statement" data-r>實際進貨成本 = 代理價 + 2.8% 采購手續費。</p>
-    <p class="prose muted" data-r>以下是 2026-10-16 用 API 詢價(唯讀,沒下單)的結果,匯率以 ¥1 ≈ NT$4.5 估算。</p>
-
-    <div class="numbers" style="margin-top: clamp(32px, 5vw, 56px);">
-      <div class="num lead-num" data-r><b>¥5.55</b><span>G53296780 合計成本,約 NT$25(代理價 ¥5.4 + 手續費 ¥0.15)</span></div>
-      <div class="num" data-r style="--i:1"><b>2.8%</b><span>采購手續費</span></div>
-      <div class="num" data-r style="--i:2"><b>85</b><span>G53296780 目前庫存</span></div>
-      <div class="num" data-r style="--i:3"><b>0</b><span>G38228339(¥3.25)庫存,已售罄</span></div>
-      <div class="num" data-r style="--i:4"><b>0</b><span>運營錢包餘額,下單前要先充值</span></div>
+    <div class="col-r c7">
+      <div class="ledger num" role="table" aria-label="實測數字">
+        <div class="row d" role="row" data-r><span class="i" role="cell">5</span><span class="f" role="cell">.4</span><span class="cap" role="cell"><b>G53296780 代理價 ¥</b>（標價 5.5）</span></div>
+        <div class="row d" role="row" data-r style="--i:1"><span class="i" role="cell">0</span><span class="f" role="cell">.15</span><span class="cap" role="cell"><b>手續費 ¥</b>（2.8%，另外加收）</span></div>
+        <div class="row d hot" role="row" data-r style="--i:2"><span class="i" role="cell">5</span><span class="f" role="cell">.55</span><span class="cap" role="cell"><b>合計 ¥，約 NT$25</b>（實際進貨成本）</span></div>
+        <div class="row d" role="row" data-r style="--i:3"><span class="i" role="cell">85</span><span class="f" role="cell"></span><span class="cap" role="cell"><b>G53296780 目前庫存</b></span></div>
+        <div class="row d zero" role="row" data-r style="--i:4"><span class="i" role="cell">0</span><span class="f" role="cell"></span><span class="cap" role="cell"><b>G38228339 庫存</b>（已售罄）</span></div>
+        <div class="row d zero" role="row" data-r style="--i:5"><span class="i" role="cell">0</span><span class="f" role="cell"></span><span class="cap" role="cell"><b>運營錢包餘額 ¥</b>（下單前要先充值）</span></div>
+      </div>
+      <ul class="notes" data-r>
+        <li>便宜的貨會缺貨：銷量 983 的 ¥3.25 商品目前買不到，所以下單要在客人付款當下才詢價，不能假設有貨。</li>
+        <li>若在 16688 自己的店面賣：平台服務費 2.8%，訂單凍結 24 小時，提現手續費平台承擔。自架店面則沒有這筆。</li>
+      </ul>
+      <p class="src" data-r>資料來源：<a href="https://www.16688.com.cn/api/purchase/docs/">16688 開放 API 文件</a>、<a href="https://haofutech.feishu.cn/docx/ESdldD1FXouYQlxdcZycXxx2nOf">16688 商家開店指引</a>。</p>
     </div>
+  </div>
+</section>
 
-    <div class="table-wrap" data-r>
-      <table>
-        <thead><tr><th>商品編號</th><th>賣家</th><th class="n">貨源廣場標價 ¥</th><th class="n">代理價 ¥</th><th class="n">手續費 ¥</th><th class="n">合計 ¥</th><th class="n">庫存</th></tr></thead>
-        <tbody>
-          <tr><td>G53296780</td><td>503691766@qq.com</td><td class="n">5.5</td><td class="n">5.4</td><td class="n">0.15</td><td class="n price-strong">5.55(約 NT$25)</td><td class="n">85</td></tr>
-          <tr><td>G38228339</td><td>503691766@qq.com</td><td class="n">3.25</td><td class="n">3.25</td><td class="n">—</td><td class="n">—</td><td class="n soldout">0(已售罄)</td></tr>
-        </tbody>
-      </table>
+<section id="calc" data-chapter="dark" class="calc">
+  <div class="grid" style="padding-inline: 0;">
+    <div class="col-l">
+      <h2 class="head-d d" data-r>拉一下賣價</h2>
+      <p class="statement" data-r style="--i:1">進貨成本約 NT$25。拉動賣價和失效率，看每 100 單賺多少。</p>
     </div>
-
-    <ul class="list" style="margin-top: clamp(32px, 5vw, 56px);" data-r>
-      <li>便宜的貨會缺貨:銷量 983 的 ¥3.25 商品目前買不到,所以下單要在客人付款當下才詢價,不能假設有貨。</li>
-      <li>若在 16688 自己的店面賣:平台服務費 2.8%,訂單凍結 24 小時,提現手續費平台承擔。自架店面則沒有這筆。</li>
-    </ul>
-    <p class="sources">資料來源:<a href="https://www.16688.com.cn/api/purchase/docs/">16688 開放 API 文件</a>、<a href="https://haofutech.feishu.cn/docx/ESdldD1FXouYQlxdcZycXxx2nOf">16688 商家開店指引</a>。</p>
   </div>
-</section>
-
-<section id="scorecard">
-  <div class="wrap">
-    <h2 data-r>貨源評分表</h2>
-    <p class="statement" data-r>在 16688 貨源廣場搜尋 Gemini,共 35 筆,以下是 18 個月啟動連結類中值得測試的 9 個。</p>
-    <p class="prose muted" data-r>銷量只代表出貨量,不代表連結不被收回;「來源可查性」全部是低,因為沒有一家說連結從哪來。</p>
-
-    <div class="table-wrap" style="margin-top: clamp(32px, 5vw, 56px);" data-r>
-      <table>
-        <thead><tr><th>賣家</th><th class="n">單價 ¥</th><th class="n">銷量</th><th>條件</th><th>來源可查性</th><th>測試結果</th></tr></thead>
-        <tbody>
-          <tr><td>503691766@qq.com(JIO,1 小時過期)</td><td class="n">3.25</td><td class="n">983</td><td>無售後;目前庫存 0</td><td>低</td><td>待測</td></tr>
-          <tr><td>xucanyang01@gmail.com(JIO,5TB)</td><td class="n">3.5</td><td class="n">1572</td><td>「考慮售後請提前錄屏」</td><td>低</td><td>待測</td></tr>
-          <tr><td>樱花AI(JIO)</td><td class="n">4.5</td><td class="n">590</td><td>無說明</td><td>低</td><td>待測</td></tr>
-          <tr><td>奶龍Gemini訂閱(自稱源頭)</td><td class="n">4.8</td><td class="n">6202</td><td>無說明</td><td>低</td><td>待測</td></tr>
-          <tr><td>樱花AI(argon)</td><td class="n">5.4</td><td class="n">8389</td><td>無說明</td><td>低</td><td>待測</td></tr>
-          <tr><td>503691766@qq.com(G53296780)</td><td class="n">5.5</td><td class="n">6597</td><td>1 小時有效,無售後,不退款</td><td>低</td><td>待測</td></tr>
-          <tr><td>xucanyang01@gmail.com(JIO,5TB)</td><td class="n">5.5</td><td class="n">3343</td><td>售後 1 小時,請錄屏</td><td>低</td><td>待測</td></tr>
-          <tr><td>llcuio@163.com(自稱一手)</td><td class="n">6</td><td class="n">259</td><td>無說明</td><td>低</td><td>待測</td></tr>
-          <tr><td>ixrecur@gmail.com</td><td class="n">6.2</td><td class="n">250</td><td>無說明</td><td>低</td><td>待測</td></tr>
-        </tbody>
-      </table>
+  <div class="panel" data-r>
+    <div>
+      <div class="ctl">
+        <label for="price">賣價（NT$ 每份）</label>
+        <div class="big d num"><span id="priceOut">1200</span></div>
+        <input id="price" type="range" min="50" max="1500" step="10" value="1200">
+        <p class="src" style="margin:0">蝦皮同類約 NT$1200，是起點，不是建議賣價。</p>
+      </div>
+      <div class="ctl" style="margin-top: clamp(28px, 4vw, 48px);">
+        <label for="fail">失效率（連結啟動失敗並退款給客人的比例）</label>
+        <div class="big d num"><span id="failOut">0</span>%</div>
+        <input id="fail" type="range" min="0" max="40" step="1" value="0">
+      </div>
     </div>
-
-    <p class="prose" style="margin-top: 2.2rem;" data-r>排除:成品號(¥13–25)、虛擬信用卡、接碼、Ultra 家庭組(¥149–195),商業邏輯不同。</p>
-    <p class="sources">資料來源:<a href="https://www.16688.com.cn/merchant/source">16688 貨源廣場</a>(需登入,2026-10-16 搜尋 Gemini)。</p>
-  </div>
-</section>
-
-<section id="tech" class="field">
-  <div class="wrap">
-    <h2 data-r>技術對接</h2>
-    <p class="statement" data-r>16688 的開放 API 已能完成詢價、下單、查單、投訴。</p>
-    <p class="prose muted" data-r>我們寫的客戶端用真憑證詢價成功,簽章驗證通過。前端網站先不談,只管貨源。</p>
-
-    <div class="table-wrap" style="margin-top: clamp(32px, 5vw, 56px);" data-r>
-      <table>
-        <thead><tr><th>端點</th><th>用途</th><th>會不會花錢</th></tr></thead>
-        <tbody>
-          <tr><td><code>purchase/quotePrice</code></td><td>詢價:單價、手續費、庫存、錢包餘額夠不夠</td><td>不會</td></tr>
-          <tr><td><code>purchase/create</code></td><td>下單,扣運營錢包,回傳連結</td><td><strong>會</strong></td></tr>
-          <tr><td><code>purchase/query</code></td><td>查單(沒有回調,未發貨要輪詢)</td><td>不會</td></tr>
-          <tr><td><code>purchase/applyComplaint</code></td><td>發起投訴,需 1–6 張截圖</td><td>不會</td></tr>
-          <tr><td><code>goods/detail</code>、<code>goods/list</code></td><td>商品詳情、已代理的貨源清單</td><td>不會</td></tr>
-        </tbody>
-      </table>
+    <div class="results num" aria-live="polite">
+      <div class="res"><span>每 100 單營收</span><span class="v">NT$ <span id="rev">120,000</span></span></div>
+      <div class="res"><span>每 100 單進貨成本</span><span class="v">NT$ <span id="cost">2,500</span></span></div>
+      <div class="res main"><span>每 100 單毛利</span><span class="v">NT$ <span id="profit">117,500</span></span></div>
+      <div class="res"><span>損益平衡失效率</span><span class="v"><span id="be">97.9</span>%</span></div>
+      <p class="src" style="margin-top: 20px;">試算只用上面的進貨成本（NT$25 × 100 單），並假設失效的單全額退款給客人、向賣家退不回進貨款。未含收款手續費與客服成本。賣價越低，失效率的影響越明顯。</p>
     </div>
-
-    <ul class="list" style="margin-top: clamp(32px, 5vw, 56px);" data-r>
-      <li><strong>簽章</strong>:HMAC-SHA256,時間誤差上限 ±300 秒,nonce 600 秒內不可重複。</li>
-      <li><strong>客戶端</strong>:在 <code>source16688</code> 資料夾,15 個離線測試通過。「下單」指令必須設金額上限且明確確認才會扣款;憑證只放本機 <code>.env</code>,不進對話、不進文件。</li>
-      <li><strong>前提</strong>:文件寫詢價限「已代理貨源」,實測是帳號成為代理後才能用。</li>
-      <li><strong>和獨角數卡的關係</strong>:獨角數卡的「站點對接」只認另一台獨角數卡,協定與 16688 不同,沒辦法直接接。後續要寫一層轉接,或付款後直接向 16688 下單、再把連結寫進卡密庫存。</li>
-    </ul>
-    <p class="sources">資料來源:<a href="https://www.16688.com.cn/api/purchase/docs/">16688 開放 API 文件</a>、<a href="https://dujiao-next.com/api/integration-guide">獨角數卡站點對接說明</a>、<a href="https://dujiao-next.com/api/integration-open-api">站點對接 API</a>。</p>
   </div>
 </section>
 
-<section id="risk">
-  <div class="wrap">
-    <h2 data-r>已知風險</h2>
-    <p class="statement" data-r>收款受限:台灣與歐美客人付不了 16688 的店面。</p>
-    <p class="prose" data-r>16688 自己的店面只收支付寶和微信;獨角數卡沒有綠界、藍新。金流業者也可能拒絕轉售訂閱類商品,串接前要先問。</p>
+<section id="how" data-chapter="dark">
+  <div class="steps">
+    <div class="stage" data-r><div style="--s:1; --ind:0;"><h2>先，連結從上游來</h2><p>來源不明；推測是 Google 與 Jio 的 18 個月促銷方案。</p></div></div>
+    <div class="stage" data-r><div style="--s:2; --ind:1;"><h2>再，賣家掛到 16688</h2><p>標價約 ¥3.25–6；連結 1 小時內要用，無售後，賣家沒有質保。</p></div></div>
+    <div class="stage" data-r><div style="--s:3; --ind:2;"><h2>然後，我們用 API 取貨</h2><p>詢價、下單、查單、投訴。從運營錢包付款，回傳連結（卡密）。客戶端已完成，簽章通過。</p></div></div>
+    <div class="stage last" data-r><div style="--s:4; --ind:3;"><h2>最後，客人付款才下單</h2><p>這一段還沒做：轉接層與店面。連結 1 小時內不用就過期，不能囤貨，所以客人付款後才即時向 16688 下單，再交付連結。客人啟動時可能要切換網路地區，收款方式待決定。</p></div></div>
   </div>
 </section>
 
-<section id="next" class="field">
-  <div class="wrap">
-    <h2 data-r>下一步</h2>
-    <p class="statement" data-r>用約 ¥30–¥40(NT$135–180)小量購買,找出哪個賣家的連結「能啟動、期限真的是 18 個月」。</p>
-    <ol class="list" style="margin-top: clamp(32px, 5vw, 56px);" data-r>
-      <li>充值運營錢包約 ¥30–¥40(金錢操作,由帳號擁有者自己做)。</li>
-      <li>從評分表選 3–5 個賣家,每家買 1 份。用客戶端的 <code>buy</code> 指令,必須設「上限金額」且明確確認才會扣款。</li>
-      <li>拿到連結後 1 小時內,用乾淨的測試 Google 帳號啟動。記錄:能否啟動、是否要切換地區、方案名稱、到期日,並截圖。</li>
-      <li>故意測一次 16688 的投訴流程,看賣家多快處理,這決定我們能不能對客人承諾補發。</li>
-    </ol>
+<section id="scorecard" data-chapter="dark">
+  <div class="grid">
+    <div class="list-head" data-r>
+      <h2>九個候選賣家，<br>來源可查性全是低</h2>
+    </div>
+    <div class="list-left photo-wrap" data-r>
+      <img class="photo photo-45" src="assets/renminbi-history.jpg" width="1920" height="1280" alt="博物館展牆上依年代排列的五套人民幣" loading="lazy" style="object-position: 86% 50%;">
+    </div>
+    <div class="list-right">
+      <p class="statement" data-r>在 16688 貨源廣場搜尋 Gemini，共 35 筆，以下是 18 個月啟動連結類中值得測試的 9 個。</p>
+      <p class="lede muted" data-r>銷量只代表出貨量，不代表連結不被收回。來源可查性全部是低，因為沒有一家說連結從哪來；測試結果全部待測。</p>
+      <div class="tbl-wrap" data-r>
+        <table class="tbl num">
+          <caption>賣家與條件，單價（¥）、銷量</caption>
+          <thead><tr><th scope="col">賣家</th><th scope="col" class="r">單價 ¥</th><th scope="col" class="r">銷量</th></tr></thead>
+          <tbody>
+            <tr><td>503691766@qq.com（JIO，1 小時過期）<span class="sub">無售後；目前庫存 0</span></td><td class="r">3.25</td><td class="r">983</td></tr>
+            <tr><td>xucanyang01@gmail.com（JIO，5TB）<span class="sub">「考慮售後請提前錄屏」</span></td><td class="r">3.5</td><td class="r">1572</td></tr>
+            <tr><td>樱花AI（JIO）<span class="sub">無說明</span></td><td class="r">4.5</td><td class="r">590</td></tr>
+            <tr><td>奶龍Gemini訂閱（自稱源頭）<span class="sub">無說明</span></td><td class="r">4.8</td><td class="r">6202</td></tr>
+            <tr><td>樱花AI（argon）<span class="sub">無說明</span></td><td class="r">5.4</td><td class="r">8389</td></tr>
+            <tr><td>503691766@qq.com（G53296780）<span class="sub">1 小時有效，無售後，不退款</span></td><td class="r">5.5</td><td class="r">6597</td></tr>
+            <tr><td>xucanyang01@gmail.com（JIO，5TB）<span class="sub">售後 1 小時，請錄屏</span></td><td class="r">5.5</td><td class="r">3343</td></tr>
+            <tr><td>llcuio@163.com（自稱一手）<span class="sub">無說明</span></td><td class="r">6</td><td class="r">259</td></tr>
+            <tr><td>ixrecur@gmail.com<span class="sub">無說明</span></td><td class="r">6.2</td><td class="r">250</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top: 2em;" data-r>排除：成品號（¥13–25）、虛擬信用卡、接碼、Ultra 家庭組（¥149–195），商業邏輯不同。</p>
+      <p class="src" data-r>資料來源：<a href="https://www.16688.com.cn/merchant/source">16688 貨源廣場</a>（需登入，2026-10-16 搜尋 Gemini）。</p>
+    </div>
+  </div>
+</section>
 
-    <h3 style="margin-top: clamp(48px, 7vw, 96px);" data-r>後續決定</h3>
-    <label class="decide" data-r>
-      <input type="checkbox" disabled>
-      <span>收款方式:先用 Stripe/PayPal,還是一開始就做台灣金流(綠界/藍新需自己寫支付模組)</span>
-    </label>
+<section id="tech" data-chapter="dark" style="padding-top: 0;">
+  <div class="grid">
+    <div class="col-l">
+      <h2 class="head-d d" data-r>技術對接</h2>
+      <p class="statement" data-r style="--i:1">16688 的開放 API 已能完成詢價、下單、查單、投訴。</p>
+      <p class="lede muted" data-r style="--i:2">我們寫的客戶端用真憑證詢價成功，簽章驗證通過。前端網站先不談，只管貨源。</p>
+    </div>
+    <div class="col-r c7">
+      <div class="tech-wrap" data-r>
+        <table class="tech-table">
+          <thead><tr><th scope="col">端點</th><th scope="col">用途</th><th scope="col">花錢嗎</th></tr></thead>
+          <tbody>
+            <tr><td><code>purchase/quotePrice</code></td><td>詢價：單價、手續費、庫存、錢包餘額夠不夠</td><td>不會</td></tr>
+            <tr><td><code>purchase/create</code></td><td>下單，扣運營錢包，回傳連結</td><td class="spend">會</td></tr>
+            <tr><td><code>purchase/query</code></td><td>查單（沒有回調，未發貨要輪詢）</td><td>不會</td></tr>
+            <tr><td><code>purchase/applyComplaint</code></td><td>發起投訴，需 1–6 張截圖</td><td>不會</td></tr>
+            <tr><td><code>goods/detail</code>、<code>goods/list</code></td><td>商品詳情、已代理的貨源清單</td><td>不會</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="notes" style="margin-top: 0;" data-r>
+        <li><b>簽章</b>：HMAC-SHA256，時間誤差上限 ±300 秒，nonce 600 秒內不可重複。</li>
+        <li><b>客戶端</b>：在 <code>source16688</code> 資料夾，15 個離線測試通過。「下單」指令必須設金額上限且明確確認才會扣款；憑證只放本機 <code>.env</code>，不進對話、不進文件。</li>
+        <li><b>前提</b>：文件寫詢價限「已代理貨源」，實測是帳號成為代理後才能用。</li>
+        <li><b>和獨角數卡的關係</b>：獨角數卡的「站點對接」只認另一台獨角數卡，協定與 16688 不同，沒辦法直接接。後續要寫一層轉接，或付款後直接向 16688 下單、再把連結寫進卡密庫存。</li>
+      </ul>
+      <p class="src" data-r>資料來源：<a href="https://www.16688.com.cn/api/purchase/docs/">16688 開放 API 文件</a>、<a href="https://dujiao-next.com/api/integration-guide">獨角數卡站點對接說明</a>、<a href="https://dujiao-next.com/api/integration-open-api">站點對接 API</a>。</p>
+    </div>
+  </div>
+</section>
+
+<section id="risk" data-chapter="dark" style="padding-top: 0;">
+  <div class="grid">
+    <div class="col-l">
+      <h2 class="head-d d" data-r>已知風險</h2>
+      <p class="statement" data-r style="--i:1">收款受限：台灣與歐美客人付不了 16688 的店面。</p>
+      <p class="lede muted" data-r style="--i:2">16688 自己的店面只收支付寶和微信；獨角數卡沒有綠界、藍新。金流業者也可能拒絕轉售訂閱類商品，串接前要先問。</p>
+    </div>
+    <div class="col-r c8 photo-wrap" data-r style="--i:2">
+      <img class="photo" style="aspect-ratio: 4 / 3;" src="assets/notes-three-regions.jpg" width="1920" height="1440" alt="攤在地圖上的新臺幣、澳門幣與港幣鈔票" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section id="next" data-chapter="dark" style="padding-top: 0;">
+  <div class="grid">
+    <div class="col-l">
+      <h2 class="head-d d" data-r>下一步</h2>
+      <p class="statement" data-r style="--i:1">用約 ¥30–¥40（NT$135–180）小量購買，找出哪個賣家的連結「能啟動、期限真的是 18 個月」。</p>
+    </div>
+    <div class="col-r c7">
+      <ol class="ol" data-r>
+        <li>充值運營錢包約 ¥30–¥40（金錢操作，由帳號擁有者自己做）。</li>
+        <li>從評分表選 3–5 個賣家，每家買 1 份。用客戶端的 <code>buy</code> 指令，必須設「上限金額」且明確確認才會扣款。</li>
+        <li>拿到連結後 1 小時內，用乾淨的測試 Google 帳號啟動。記錄：能否啟動、是否要切換地區、方案名稱、到期日，並截圖。</li>
+        <li>故意測一次 16688 的投訴流程，看賣家多快處理，這決定我們能不能對客人承諾補發。</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="close" data-chapter="paper" aria-label="結語">
+  <div class="big d" data-r>試買 3–5 份<br>不超過 <em>NT$180</em></div>
+  <div class="base" data-r style="--i:1">
+    <p>還要決定一件事：收款方式先用 Stripe/PayPal，還是一開始就做台灣金流（綠界/藍新需自己寫支付模組）。</p>
+    <a class="btn" href="https://github.com/regent90/fishmoney">原始碼</a>
   </div>
 </section>
 
 </main>
 
-<footer class="field">
-  <div class="wrap">
-    <div class="name" aria-hidden="true">fishmoney</div>
-    <p>代儲貨源研究 · 資料日期 2026 年 10 月 16 日</p>
+<footer id="end" data-chapter="paper">
+  <div class="foot-links">
+    <a href="https://www.16688.com.cn/api/purchase/docs/">16688 開放 API 文件</a>
+    <a href="https://dujiao-next.com/api/integration-guide">獨角數卡站點對接</a>
+    <a href="https://github.com/regent90/fishmoney">GitHub</a>
   </div>
+  <p class="credits">2026 年 10 月 16 日，Regent Wang。圖片與影片：<a href="https://commons.wikimedia.org/wiki/File:Hourglass_-_tokyo_-_2015_11_17.webm">“Hourglass - tokyo - 2015 11 17”</a> by Nesnad, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons；<a href="https://commons.wikimedia.org/w/index.php?curid=191799">“Wooden hourglass”</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons；<a href="https://commons.wikimedia.org/wiki/File:%E8%87%BA%E7%81%A3%E9%8A%80%E8%A1%8C%E5%8C%85%E8%A3%9D%E4%B9%8B%E6%96%B0%E8%87%BA%E5%B9%A3%E4%B8%80%E7%99%BE%E8%90%AC%E5%85%83NTD1000000.jpg">“臺灣銀行包裝之新臺幣一百萬元NTD1000000”</a> by Yeepunchmen, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons；<a href="https://commons.wikimedia.org/wiki/File:%E7%BA%B8%E9%92%9E.jpg">“纸钞”</a> by UMC654, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons；<a href="https://commons.wikimedia.org/wiki/File:Historical_Series_of_Renminbi,_Hangzhou_National_Archives_71.jpg">“Historical Series of Renminbi, Hangzhou National Archives 71”</a> by User:CatOnMars, <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a>, via Wikimedia Commons。</p>
+  <div class="wordmark d" aria-hidden="true">FISHMONEY</div>
 </footer>
 
 <script>
 (function () {
-  var els = document.querySelectorAll('[data-r]');
-  if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  document.documentElement.classList.add('js');
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
-  els.forEach(function (el) { io.observe(el); });
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* header takes the ink of the chapter beneath it */
+  var bar = document.getElementById('bar');
+  var chapters = Array.prototype.slice.call(document.querySelectorAll('[data-chapter]'));
+  function paintBar() {
+    var y = bar.offsetHeight / 2, ink = 'paper';
+    chapters.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      if (r.top <= y && r.bottom > y) ink = (el.getAttribute('data-chapter') === 'dark') ? 'dark' : 'paper';
+    });
+    bar.classList.toggle('on-paper', ink === 'paper');
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; requestAnimationFrame(function () { paintBar(); ticking = false; }); }
+  }, { passive: true });
+  window.addEventListener('resize', paintBar);
+  paintBar();
+
+  /* entrances */
+  if ('IntersectionObserver' in window && !reduce) {
+    document.documentElement.classList.add('js');
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.04 });
+    document.querySelectorAll('[data-r]').forEach(function (el) { io.observe(el); });
+  }
+
+  /* the hourglass loop stays still for people who asked for less motion */
+  var loop = document.getElementById('loop');
+  if (loop && reduce) { loop.removeAttribute('autoplay'); loop.pause(); }
+
+  /* margin calculator */
+  var COST = 25;
+  var price = document.getElementById('price'), fail = document.getElementById('fail');
+  var fmt = function (n) { return Math.round(n).toLocaleString('en-US'); };
+  function calc() {
+    var p = +price.value, f = +fail.value / 100;
+    var rev = p * 100 * (1 - f), cost = COST * 100, profit = rev - cost;
+    var be = Math.max(0, 1 - COST / p) * 100;
+    document.getElementById('priceOut').textContent = p;
+    document.getElementById('failOut').textContent = Math.round(f * 100);
+    document.getElementById('rev').textContent = fmt(rev);
+    document.getElementById('cost').textContent = fmt(cost);
+    var pr = document.getElementById('profit');
+    pr.textContent = (profit < 0 ? '−' : '') + fmt(Math.abs(profit));
+    document.getElementById('be').textContent = be.toFixed(1);
+  }
+  price.addEventListener('input', calc);
+  fail.addEventListener('input', calc);
+  calc();
 })();
 </script>
 </body>
