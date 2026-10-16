@@ -62,6 +62,13 @@ code { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-si
 .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--col-gap); padding-inline: var(--gutter); }
 section { padding-block: clamp(88px, 11vw, 160px); }
 .muted { color: var(--muted); }
+.paper { background: var(--paper); color: var(--paper-ink); }
+.paper .muted, .paper .tbl caption, .paper .tbl th, .paper .tbl .sub, .paper .src { color: var(--paper-muted); }
+.paper a { text-decoration-color: var(--accent); }
+.paper .tbl tbody tr:hover td { color: var(--accent); }
+.red { background: var(--accent); color: var(--accent-ink); }
+.red .head-d, .red .statement { color: #fff; }
+.red .lede.muted { color: #fff; }
 
 /* ---------------- bar: takes the ink of the chapter beneath it ---------------- */
 .bar { position: fixed; inset: 0 0 auto 0; z-index: 50; height: var(--bar); display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-inline: var(--gutter); background: var(--bg); color: var(--ink); transition: background-color .3s ease, color .3s ease; }
@@ -91,12 +98,9 @@ section { padding-block: clamp(88px, 11vw, 160px); }
 .hero h1 .l { display: block; height: 1em; position: relative; }
 /* line two changes ink where it crosses the seam: same text drawn again in the lower ink, clipped to below the seam */
 .hero h1 .l2::after { content: attr(data-t); position: absolute; left: 0; top: 0; color: var(--paper); clip-path: inset(34% 0 0 0); }
-.slot { display: inline-block; width: 1.72em; height: 0.86em; vertical-align: -0.1em; margin-left: 0.28em; border-radius: 0.14em; overflow: hidden; background: #2a1c14; position: relative; }
-.slot video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 47% 50%; transform: scale(2.4); transform-origin: 47% 50%; }
 .hero .support { position: absolute; left: 50%; transform: translateX(-50%); top: calc(100svh - 150px); width: min(34ch, calc(100% - 2 * var(--gutter))); margin: 0; text-align: center; color: var(--paper); font-size: var(--step-body); line-height: 1.6; font-weight: 500; }
 @media (max-width: 700px) {
   .hero { --seam: 46svh; --step-display: clamp(2.6rem, 13.4vw, 4.4rem); }
-  .slot { width: 1.5em; }
   .hero .support { top: calc(100svh - 128px); }
 }
 
@@ -115,9 +119,6 @@ section { padding-block: clamp(88px, 11vw, 160px); }
 .finding dt { font-size: var(--step-lead); font-weight: 700; line-height: 1.3; }
 .finding dd { margin: 0 0 8px; }
 .finding .warn dt { color: var(--accent-text); }
-.photo { width: 100%; height: auto; object-fit: cover; background: var(--surface); }
-.photo-tall { aspect-ratio: 3 / 4; object-position: 50% 52%; }
-.photo-45 { aspect-ratio: 4 / 5; }
 
 /* ledger: figures align on the decimal point */
 .ledger { display: grid; gap: clamp(14px, 1.8vw, 24px); }
@@ -163,7 +164,6 @@ section { padding-block: clamp(88px, 11vw, 160px); }
 /* list */
 .list-head { grid-column: 1 / -1; padding-left: 3vw; margin-bottom: clamp(56px, 8vw, 96px); }
 .list-head h2 { font-size: var(--step-head); font-weight: 800; line-height: 1.08; letter-spacing: -0.02em; }
-.list-left { grid-column: 1 / span 4; align-self: end; }
 .list-right { grid-column: 7 / -1; }
 .tbl { width: 100%; border-collapse: collapse; font-size: var(--step-body); }
 .tbl caption { text-align: left; color: var(--muted); font-size: var(--step-small); padding-bottom: 16px; }
@@ -176,7 +176,7 @@ section { padding-block: clamp(88px, 11vw, 160px); }
 .tbl tbody tr { transition: background-color .2s; }
 .tbl tbody tr:hover td { color: var(--accent-text); }
 .tbl-wrap { overflow-x: auto; }
-@media (max-width: 899px) { .list-head { padding-left: 0; } .list-left { grid-column: 1 / -1; order: 3; width: 60%; margin-left: auto; margin-top: 40px; } .list-right { grid-column: 1 / -1; } }
+@media (max-width: 899px) { .list-head { padding-left: 0; } .list-right { grid-column: 1 / -1; } }
 
 /* tech table */
 .tech-table { width: 100%; border-collapse: collapse; }
@@ -219,10 +219,7 @@ footer a { text-decoration-color: var(--accent); }
   .js [data-r].in { opacity: 1; transform: none; }
   .btn { transition: background-color .2s, transform .2s; }
   .btn:hover { transform: translateY(-2px); }
-  .photo { transition: transform .6s cubic-bezier(.2,.7,.2,1); }
-  .photo-wrap:hover .photo { transform: scale(1.03); }
 }
-.photo-wrap { overflow: hidden; }
 </style>
 </head>
 <body id="top">
@@ -258,7 +255,7 @@ footer a { text-decoration-color: var(--accent); }
 <section class="hero" data-chapter="hero" aria-label="首屏">
   <div class="f-paper"></div>
   <div class="f-red"></div>
-  <h1 class="d"><span class="l">進貨 NT$25<span class="slot" aria-hidden="true"><video id="loop" autoplay muted loop playsinline preload="metadata" poster="assets/hourglass-loop-poster.jpg" width="854" height="480"><source src="assets/hourglass-loop.webm" type="video/webm"></video></span></span><span class="l l2" data-t="蝦皮賣 NT$1200">蝦皮賣 NT$1200</span></h1>
+  <h1 class="d"><span class="l">進貨 NT$25</span><span class="l l2" data-t="蝦皮賣 NT$1200">蝦皮賣 NT$1200</span></h1>
   <p class="support">代儲貨源研究：16688 上的 Google AI Pro 啟動連結，拿到手只有 1 小時有效。</p>
 </section>
 
@@ -268,14 +265,13 @@ footer a { text-decoration-color: var(--accent); }
       <h2 class="head-d d" data-r>結論</h2>
       <p class="statement" data-r style="--i:1">貨源可行，技術對接已打通，但還沒用真錢下過單。</p>
       <p class="lede muted" data-r style="--i:2">16688 平台上的 Google AI Pro（Gemini）18 個月啟動連結，實測進貨成本約 ¥5.55（約 NT$25）；台灣蝦皮同類商品約 NT$1200。</p>
+    </div>
+    <div class="col-r c8">
       <dl class="finding">
         <div data-r style="--i:2"><dt>已確認</dt><dd>16688 開放 API 可以詢價、下單、查單、投訴；我們寫的客戶端已用真憑證通過簽章驗證，詢價成功。</dd></div>
         <div class="warn" data-r style="--i:3"><dt>最大不確定</dt><dd>所有賣家都沒說連結來源；連結 1 小時內不用就過期、無售後；福利之後會不會被 Google 或 Jio 收回，沒有官方條款可查。</dd></div>
         <div data-r style="--i:4"><dt>還缺的</dt><dd>運營錢包是 0，尚未實際購買一份走完「下單、啟動、追蹤」流程。</dd></div>
       </dl>
-    </div>
-    <div class="col-r photo-wrap" data-r style="--i:2">
-      <img class="photo photo-tall" src="assets/hourglass-wood.jpg" width="1134" height="2454" alt="一個木框玻璃沙漏，上半部的沙正往下漏" loading="lazy">
     </div>
   </div>
 </section>
@@ -286,9 +282,6 @@ footer a { text-decoration-color: var(--accent); }
       <h2 class="head-d d" data-r>貨源實測</h2>
       <p class="statement" data-r style="--i:1">實際進貨成本 = 代理價 + 2.8% 采購手續費。</p>
       <p class="lede muted" data-r style="--i:2">以下是 2026-10-16 用 API 詢價（唯讀，沒下單）的結果，匯率以 ¥1 ≈ NT$4.5 估算。</p>
-      <div class="photo-wrap" style="max-width: 24rem; margin-top: clamp(32px, 5vw, 64px); --i:3;" data-r>
-        <img class="photo photo-45" src="assets/ntd-stack.jpg" width="1920" height="1440" alt="臺灣銀行封裝的一整疊新臺幣鈔票" loading="lazy" style="object-position: 52% 45%;">
-      </div>
     </div>
     <div class="col-r c7">
       <div class="ledger num" role="table" aria-label="實測數字">
@@ -348,13 +341,10 @@ footer a { text-decoration-color: var(--accent); }
   </div>
 </section>
 
-<section id="scorecard" data-chapter="dark">
+<section id="scorecard" class="paper" data-chapter="paper">
   <div class="grid">
     <div class="list-head" data-r>
       <h2>九個候選賣家，<br>來源可查性全是低</h2>
-    </div>
-    <div class="list-left photo-wrap" data-r>
-      <img class="photo photo-45" src="assets/renminbi-history.jpg" width="1920" height="1280" alt="博物館展牆上依年代排列的五套人民幣" loading="lazy" style="object-position: 86% 50%;">
     </div>
     <div class="list-right">
       <p class="statement" data-r>在 16688 貨源廣場搜尋 Gemini，共 35 筆，以下是 18 個月啟動連結類中值得測試的 9 個。</p>
@@ -382,7 +372,7 @@ footer a { text-decoration-color: var(--accent); }
   </div>
 </section>
 
-<section id="tech" data-chapter="dark" style="padding-top: 0;">
+<section id="tech" data-chapter="dark">
   <div class="grid">
     <div class="col-l">
       <h2 class="head-d d" data-r>技術對接</h2>
@@ -413,20 +403,19 @@ footer a { text-decoration-color: var(--accent); }
   </div>
 </section>
 
-<section id="risk" data-chapter="dark" style="padding-top: 0;">
+<section id="risk" class="red" data-chapter="dark">
   <div class="grid">
     <div class="col-l">
       <h2 class="head-d d" data-r>已知風險</h2>
       <p class="statement" data-r style="--i:1">收款受限：台灣與歐美客人付不了 16688 的店面。</p>
-      <p class="lede muted" data-r style="--i:2">16688 自己的店面只收支付寶和微信；獨角數卡沒有綠界、藍新。金流業者也可能拒絕轉售訂閱類商品，串接前要先問。</p>
     </div>
-    <div class="col-r c8 photo-wrap" data-r style="--i:2">
-      <img class="photo" style="aspect-ratio: 4 / 3;" src="assets/notes-three-regions.jpg" width="1920" height="1440" alt="攤在地圖上的新臺幣、澳門幣與港幣鈔票" loading="lazy">
+    <div class="col-r c7">
+      <p class="lede muted" data-r style="--i:2">16688 自己的店面只收支付寶和微信；獨角數卡沒有綠界、藍新。金流業者也可能拒絕轉售訂閱類商品，串接前要先問。</p>
     </div>
   </div>
 </section>
 
-<section id="next" data-chapter="dark" style="padding-top: 0;">
+<section id="next" data-chapter="dark">
   <div class="grid">
     <div class="col-l">
       <h2 class="head-d d" data-r>下一步</h2>
@@ -459,7 +448,7 @@ footer a { text-decoration-color: var(--accent); }
     <a href="https://dujiao-next.com/api/integration-guide">獨角數卡站點對接</a>
     <a href="https://github.com/regent90/fishmoney">GitHub</a>
   </div>
-  <p class="credits">2026 年 10 月 16 日，Regent Wang。圖片與影片：<a href="https://commons.wikimedia.org/wiki/File:Hourglass_-_tokyo_-_2015_11_17.webm">“Hourglass - tokyo - 2015 11 17”</a> by Nesnad, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons；<a href="https://commons.wikimedia.org/w/index.php?curid=191799">“Wooden hourglass”</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons；<a href="https://commons.wikimedia.org/wiki/File:%E8%87%BA%E7%81%A3%E9%8A%80%E8%A1%8C%E5%8C%85%E8%A3%9D%E4%B9%8B%E6%96%B0%E8%87%BA%E5%B9%A3%E4%B8%80%E7%99%BE%E8%90%AC%E5%85%83NTD1000000.jpg">“臺灣銀行包裝之新臺幣一百萬元NTD1000000”</a> by Yeepunchmen, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons；<a href="https://commons.wikimedia.org/wiki/File:%E7%BA%B8%E9%92%9E.jpg">“纸钞”</a> by UMC654, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons；<a href="https://commons.wikimedia.org/wiki/File:Historical_Series_of_Renminbi,_Hangzhou_National_Archives_71.jpg">“Historical Series of Renminbi, Hangzhou National Archives 71”</a> by User:CatOnMars, <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a>, via Wikimedia Commons。</p>
+  <p class="credits">2026 年 10 月 16 日，Regent Wang。</p>
   <div class="wordmark d" aria-hidden="true">FISHMONEY</div>
 </footer>
 
@@ -493,10 +482,6 @@ footer a { text-decoration-color: var(--accent); }
     }, { rootMargin: '0px 0px -6% 0px', threshold: 0.04 });
     document.querySelectorAll('[data-r]').forEach(function (el) { io.observe(el); });
   }
-
-  /* the hourglass loop stays still for people who asked for less motion */
-  var loop = document.getElementById('loop');
-  if (loop && reduce) { loop.removeAttribute('autoplay'); loop.pause(); }
 
   /* margin calculator */
   var COST = 25;
